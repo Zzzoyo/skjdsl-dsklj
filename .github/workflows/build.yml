@@ -1,20 +1,28 @@
-name: Build infernoFSPatcher
+name: Build infernoFSPatcher for Apple Silicon
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++
-      - name: Configure and Build
         run: |
-          # الانتقال إلى المجلد الذي يحتوي على CMakeLists.txt
+          brew update
+          brew install cmake gcc
+      
+      - name: Configure and Build for ARM64
+        run: |
           cd infernofspatcher
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          # تحديد البنية لـ ARM64 (Apple Silicon)
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DCMAKE_CXX_STANDARD=17
           cmake --build build
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: inferno_fs_patcher
+          name: inferno_fs_patcher_apple_silicon
           path: infernofspatcher/build/inferno_fs_patcher
